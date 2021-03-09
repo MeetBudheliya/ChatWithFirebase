@@ -11,10 +11,12 @@ class User: NSObject {
     var name:String?
     var email :String?
     var profileImage:String?
+    var createdDate:String?
     init(id:String,Dict:[String:Any]) {
         self.id = id
         self.name = Dict["UserName"] as? String
         self.email = Dict["EmailId"] as? String
         self.profileImage = Dict["ProfileImage"] as? String
+        self.createdDate = Dict["CreatedDate"] as? String
     }
 }

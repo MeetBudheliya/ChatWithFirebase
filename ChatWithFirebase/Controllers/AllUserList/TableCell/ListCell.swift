@@ -15,8 +15,12 @@ class ListCell: UITableViewCell {
     @IBOutlet weak var timeLBL: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        
+        //Set Rounded Image
+        profileImage.layer.borderWidth = 0.5
+        profileImage.layer.masksToBounds = false
+       profileImage.layer.borderColor = UIColor.black.cgColor
+        profileImage.clipsToBounds = true
+        profileImage.layer.cornerRadius = profileImage.frame.height/2
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {

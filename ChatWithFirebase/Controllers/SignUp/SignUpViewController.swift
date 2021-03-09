@@ -17,7 +17,12 @@ class SignUpViewController: UIViewController {
     @IBOutlet weak var profileImage: UIImageView!
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        //Set Rounded Image
+        profileImage.layer.borderWidth = 0.5
+        profileImage.layer.masksToBounds = false
+       profileImage.layer.borderColor = UIColor.black.cgColor
+        profileImage.clipsToBounds = true
+        profileImage.layer.cornerRadius = profileImage.frame.height/2
     }
     
     @IBAction func SelectProfileImage(_ sender: UIButton) {
@@ -65,8 +70,8 @@ class SignUpViewController: UIViewController {
                             self.Errorpopup(message: "Image Url Not Found")
                             return
                         }
-                        let values = ["UserName":userName,"EmailId":email,"ProfileImage":Imageurl.absoluteString]
-                        self.AddIntoUserList(uid: (result?.user.uid)!, values: values as [String:String])
+                        let values = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"CreatedDate":self.getCurrentDate()] as [String : Any]
+                        self.AddIntoUserList(uid: (result?.user.uid)!, values: values as [String:Any])
                     }
                 }
             }
@@ -74,7 +79,7 @@ class SignUpViewController: UIViewController {
 
         }
     }
-    func AddIntoUserList(uid:String,values:[String:String]){
+    func AddIntoUserList(uid:String,values:[String:Any]){
         let ref = Database.database().reference()
         let userRes = ref.child("user").child(uid)
         userRes.updateChildValues(values) { (err, dbRef) in
@@ -118,4 +123,16 @@ extension SignUpViewController:UIImagePickerControllerDelegate,UINavigationContr
         self.dismiss(animated: true, completion: nil)
         
     }
+}
+extension SignUpViewController{
+    func getCurrentDate() -> String {
+
+            let dateFormatter = DateFormatter()
+
+            dateFormatter.dateFormat = "dd/MM/YY h:mm a"
+
+            return dateFormatter.string(from: Date())
+
+        }
+
 }
