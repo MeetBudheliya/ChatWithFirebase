@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="ListCell" rowHeight="72" id="KGk-i7-Jjw" customClass="ListCell" customModule="ChatWithFirebase" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="72"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="person.circle.fill" catalog="system" translatesAutoresizingMaskIntoConstraints="NO" id="iHK-at-Niz">
+                        <rect key="frame" x="20" y="15.5" width="45" height="44"/>
+                        <color key="tintColor" systemColor="secondaryLabelColor"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="45" id="AVs-iH-VuZ"/>
+                            <constraint firstAttribute="width" constant="45" id="Krd-XE-Cpx"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4CL-et-vKu">
+                        <rect key="frame" x="75" y="15" width="39.5" height="19.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="svg-2E-L4O">
+                        <rect key="frame" x="75" y="39.5" width="33" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eA3-ae-Utn">
+                        <rect key="frame" x="269" y="15" width="31" height="14.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="iHK-at-Niz" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="20" id="4xF-E2-Mhl"/>
+                    <constraint firstAttribute="bottom" secondItem="iHK-at-Niz" secondAttribute="bottom" constant="15" id="B3O-FE-fbK"/>
+                    <constraint firstItem="4CL-et-vKu" firstAttribute="top" secondItem="iHK-at-Niz" secondAttribute="top" id="JIQ-IN-dr8"/>
+                    <constraint firstItem="4CL-et-vKu" firstAttribute="leading" secondItem="iHK-at-Niz" secondAttribute="trailing" constant="10" id="YuF-7R-igd"/>
+                    <constraint firstAttribute="trailing" secondItem="eA3-ae-Utn" secondAttribute="trailing" constant="20" id="cMx-QH-ft1"/>
+                    <constraint firstItem="iHK-at-Niz" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="dut-jU-iPC"/>
+                    <constraint firstItem="svg-2E-L4O" firstAttribute="top" secondItem="4CL-et-vKu" secondAttribute="bottom" constant="5" id="miT-q4-vjt"/>
+                    <constraint firstItem="iHK-at-Niz" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="ndd-cc-RPi"/>
+                    <constraint firstItem="eA3-ae-Utn" firstAttribute="top" secondItem="4CL-et-vKu" secondAttribute="top" id="ume-27-eVq"/>
+                    <constraint firstItem="svg-2E-L4O" firstAttribute="leading" secondItem="4CL-et-vKu" secondAttribute="leading" id="xTk-ph-NiZ"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
+            <connections>
+                <outlet property="messageLBL" destination="svg-2E-L4O" id="TGB-sw-5fD"/>
+                <outlet property="name" destination="4CL-et-vKu" id="P6T-7W-R6H"/>
+                <outlet property="profileImage" destination="iHK-at-Niz" id="gwW-jt-dZP"/>
+                <outlet property="timeLBL" destination="eA3-ae-Utn" id="IcW-xW-xgi"/>
+            </connections>
+            <point key="canvasLocation" x="140.57971014492756" y="105.80357142857143"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="person.circle.fill" catalog="system" width="128" height="121"/>
+        <systemColor name="secondaryLabelColor">
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+    </resources>
+</document>
