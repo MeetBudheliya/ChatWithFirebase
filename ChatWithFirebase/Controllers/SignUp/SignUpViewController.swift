@@ -9,14 +9,19 @@ import UIKit
 import Firebase
 import FirebaseDatabase
 import FirebaseStorage
+import FirebaseFirestore
+
 class SignUpViewController: UIViewController {
 
     @IBOutlet weak var UserName: UITextField!
     @IBOutlet weak var EmailTXT: UITextField!
     @IBOutlet weak var PassTXT: UITextField!
     @IBOutlet weak var profileImage: UIImageView!
+    @IBOutlet weak var registerBTN: UIButton!
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerBTN.layer.cornerRadius = 10
+        
         //Set Rounded Image
         profileImage.layer.borderWidth = 0.5
         profileImage.layer.masksToBounds = false
@@ -51,6 +56,8 @@ class SignUpViewController: UIViewController {
                 self.Errorpopup(message: error!.localizedDescription)
                 return
             }
+            
+            self.AddIntoGroup()
             let imageName = UUID().uuidString
             let PImage = self.profileImage.image
             let storageRef = Storage.storage().reference().child("ProfileImages").child("\(imageName).png")
@@ -72,6 +79,7 @@ class SignUpViewController: UIViewController {
                         }
                         let values = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"CreatedDate":self.getCurrentDate()] as [String : Any]
                         self.AddIntoUserList(uid: (result?.user.uid)!, values: values as [String:Any])
+                        
                     }
                 }
             }
@@ -89,7 +97,28 @@ class SignUpViewController: UIViewController {
             }
             self.Errorpopup(message: "SucccessFully Register")
         }
+
     }
+    func AddIntoGroup(){
+        Firestore.firestore().collection("Groups").order(by: "Updated").addSnapshotListener { (snapshot, error) in
+            for docs in snapshot!.documents{
+                docs.data()
+            }
+        }
+        
+     let data: [String: Any] = [
+         "GroupName":"All Users",
+        "Users":Auth.auth().currentUser?.email!,
+        "Updated":Timestamp()
+     ]
+     Firestore.firestore().collection("Groups").addDocument(data: data) { (err) in
+         guard err == nil else{
+             print(err!)
+             return
+         }
+         print(data)
+     }
+     }
 }
 //MARK: - Image Picker
 extension SignUpViewController:UIImagePickerControllerDelegate,UINavigationControllerDelegate{

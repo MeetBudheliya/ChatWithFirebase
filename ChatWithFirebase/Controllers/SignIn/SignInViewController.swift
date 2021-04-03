@@ -15,6 +15,7 @@ class SignInViewController: UIViewController {
     override func viewDidLoad() {
         UserDefaults.standard.set(false, forKey: "Login")
         super.viewDidLoad()
+        LoginBTN.layer.cornerRadius = 10
     }
     @IBAction func LoginClicked(_ sender: UIButton) {
         guard let email = EmailTXT.text ,EmailTXT.text != "" else {
