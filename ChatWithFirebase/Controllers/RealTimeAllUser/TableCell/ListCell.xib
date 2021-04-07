@@ -87,6 +87,7 @@
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
+                <outlet property="createdLBL" destination="wY9-i2-zFD" id="ahu-bY-f9w"/>
                 <outlet property="messageLBL" destination="svg-2E-L4O" id="TGB-sw-5fD"/>
                 <outlet property="name" destination="4CL-et-vKu" id="P6T-7W-R6H"/>
                 <outlet property="profileImage" destination="iHK-at-Niz" id="gwW-jt-dZP"/>

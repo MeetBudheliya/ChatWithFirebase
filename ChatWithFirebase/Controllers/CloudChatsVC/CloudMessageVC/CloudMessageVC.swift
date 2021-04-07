@@ -16,23 +16,29 @@ struct Messagee{
     let receiver:String?
     let body:String?
     let messageTime:Timestamp?
+    let type:String?
 }
+//protocol lastMsgTime {
+//    func SendLastMSGTime(msg:String,time:String,receiver:String)
+//}
 class CloudMessageVC: UIViewController {
 
     @IBOutlet weak var bottomView: UIView!
     @IBOutlet weak var msgTBL: UITableView!
     @IBOutlet weak var msgTXT: UITextField!
-    
+   // var delegate:lastMsgTime?
     let db = Firestore.firestore()
-    var receiverUser:User?
-    var currentUser:User?
+    var receiverUser:UserList?
+    var currentUser:UserList?
     var messages = [Messagee]()
+    var type = String()
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        self.navigationItem.title = receiverUser?.name
         ViewShdow()
         tableSetup()
         loadMessage()
+       
     }
     func ViewShdow(){
         bottomView.layer.shadowColor = UIColor.lightGray.cgColor
@@ -50,7 +56,7 @@ class CloudMessageVC: UIViewController {
             print("Enter Message")
             return
         }
-        AddNewMessage(msg: Messagee(sender: Auth.auth().currentUser?.email, receiver: receiverUser?.email, body: sender.text, messageTime: Timestamp()))
+        AddNewMessage(msg: Messagee(sender: Auth.auth().currentUser?.email, receiver: receiverUser?.email, body: sender.text, messageTime: Timestamp(),type: type))
         sender.text = nil
     }
     @IBAction func folderButton(_ sender: UIButton) {
@@ -68,7 +74,7 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: "RightCell") as! RightCell
         let cellMSG = messages[indexPath.row]
         
-        if Auth.auth().currentUser?.email == cellMSG.sender{
+        if Auth.auth().currentUser?.email == cellMSG.sender && receiverUser?.email == cellMSG.receiver{
             cell.receiverMsgView.isHidden = true
             cell.receiverProfile.isHidden = true
             cell.msgView.isHidden = false
@@ -80,11 +86,15 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
                 URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
                     guard err == nil else{
                         print(err!)
-                        cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                        DispatchQueue.main.async {
+                            cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                        }
                         return
                     }
                     guard let imgData = data else{
-                        cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                        DispatchQueue.main.async {
+                            cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                        }
                         return
                     }
                     
@@ -97,10 +107,12 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
                     }
                 }.resume()
             }else{
-                cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                DispatchQueue.main.async {
+                    cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                }
             }
             
-        }else{
+        }else if Auth.auth().currentUser?.email == cellMSG.receiver && receiverUser?.email == cellMSG.sender{
             cell.receiverMsgView.isHidden = false
             cell.receiverProfile.isHidden = false
             cell.msgView.isHidden = true
@@ -112,11 +124,15 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
                 URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
                     guard err == nil else{
                         print(err!)
-                        cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                        DispatchQueue.main.async {
+                            cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                        }
                         return
                     }
                     guard let imgData = data else{
-                        cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                        DispatchQueue.main.async {
+                            cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                        }
                         return
                     }
                     
@@ -129,9 +145,12 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
                     }
                 }.resume()
             }else{
-                cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                DispatchQueue.main.async {
+                    cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                }
             }
         }
+       // self.delegate?.SendLastMSGTime(msg: cellMSG.body!, time: getTimeFromTimestamp(time: cellMSG.messageTime!),receiver: (receiverUser?.email)!)
         
         return cell
     }
@@ -153,6 +172,7 @@ extension CloudMessageVC{
             "receiver": msg.receiver!,
             "body": msg.body!,
             "time": msg.messageTime!,
+            "Type": msg.type!
         ]
         db.collection("MsgData").addDocument(data: data) { (err) in
             guard err == nil else{
@@ -174,14 +194,28 @@ extension CloudMessageVC{
             }
             for msgData in query!.documents{
                 let data = msgData.data()
-                let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? String, body: data["body"] as? String, messageTime: data["time"] as? Timestamp)
-                self.messages.append(msg)
+                if data["Type"] as! String == "person"{
+                    if (Auth.auth().currentUser?.email == data["sender"] as! String && self.receiverUser?.email == data["receiver"] as! String) || (Auth.auth().currentUser?.email == data["receiver"] as! String && self.receiverUser?.email == data["sender"] as! String){
+                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? String, body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                        self.messages.append(msg)
+                    }
+                }else if data["Type"] as! String == "group"{
+                    let members = data["Members"] as? [String]
+                    if members?.contains((Auth.auth().currentUser?.email)!) == true{
+                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? String, body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                        self.messages.append(msg)
+                    }
+                }
+                
             }
             
             DispatchQueue.main.async {
                 self.msgTBL.reloadData()
-                let index = IndexPath(row: self.messages.count-1, section: 0)
-                self.msgTBL.scrollToRow(at: index, at: .top, animated: true)
+                if self.messages.count > 0{
+                    let index = IndexPath(row: self.messages.count-1, section: 0)
+                    self.msgTBL.scrollToRow(at: index, at: .top, animated: true)
+                }
+               
             }
             
         }

@@ -11,16 +11,24 @@ import FirebaseAuth
 import FirebaseFirestore
 
 class ChatsViewController: UIViewController {
-
+    
     @IBOutlet weak var ChatsTBL: UITableView!
-    var users = [User]()
-    var currentUser:User?
+    @IBOutlet weak var createGroupBTN: UIButton!
+    var users = [UserList]()
+    var groups = [NSDictionary]()
+    var currentUser:UserList?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         UserDefaults.standard.set(true, forKey: "Login")
         tableSetup()
-        GetUsers()
+        //        GetUsers()
+        GetList()
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        // GetUsers()
+        GetList()
     }
     
     func tableSetup(){
@@ -36,48 +44,104 @@ class ChatsViewController: UIViewController {
         let VC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "ChatListViewController") as! ChatListViewController
         self.navigationController?.pushViewController(VC, animated: true)
     }
-
-
+    
+    @IBAction func createGroupClicked(_ sender: Any) {
+        print("Create Group")
+        CreateGroupBTNClick()
+    }
+    //Add Group Button Action Function
+    func CreateGroupBTNClick(){
+        let popup = UIAlertController(title: "Create Group", message: "Enter Group Name", preferredStyle: .alert)
+        popup.addAction(UIAlertAction(title: "Create", style: .default, handler: { (alert) in
+            guard let GroupName = popup.textFields![0].text else{
+                return
+            }
+            var usersEmail = [self.currentUser?.email]
+            for user in self.users{
+                usersEmail.append(user.email!)
+            }
+            let data: [String: Any] = [
+                "UserName": GroupName,
+                "Members":usersEmail,
+                "EmailId":usersEmail[0]!,
+                "Type":"group",
+                "Updated":Timestamp()
+            ]
+            Firestore.firestore().collection("Users").addDocument(data: data) { (err) in
+                guard err == nil else{
+                    print(err!)
+                    return
+                }
+                print(data)
+              //  self.users.append(UserList(Dict: data))
+                self.ChatsTBL.reloadData()
+            }
+            
+        }))
+        popup.addTextField { (textField) in
+            textField.placeholder = "Enter Group Name Here"
+        }
+        popup.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (alert) in
+            //
+        }))
+        self.present(popup, animated: true, completion: nil)
+    }
+    
 }
 
 //MARK: - Get User List From RealTime Registered
 extension ChatsViewController{
     func GetUsers(){
+        //        self.users = []
+        //        ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
+        //        Database.database().reference().child("user").observe(.childAdded) { (snapshot) in
+        //            print(snapshot)
+        //            let key = snapshot.key
+        //            let user = snapshot.value as? [String:Any]
+        //            let userEmail = user!["EmailId"] as? String
+        //
+        //
+        //            if Auth.auth().currentUser?.email == userEmail?.lowercased(){
+        //                self.currentUser = User(id: key, Dict: user!)
+        //                //Condition For current User In Not See In List
+        //
+        //            }else{
+        //                // Exclude Current UYser All User See In List
+        //                self.users.append(User(id: key, Dict: user!))
+        //            }
+        //            self.ChatsTBL.reloadData()
+        //            ChatsViewController.showUniversalLoadingView(false)
+        //        }
+    }
+    func GetList(){
         ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
-        Database.database().reference().child("user").observe(.childAdded) { (snapshot) in
-            print(snapshot)
-            let key = snapshot.key
-            let user = snapshot.value as? [String:Any]
-            let userEmail = user!["EmailId"] as? String
-            
-            
-            if Auth.auth().currentUser?.email == userEmail?.lowercased(){
-                self.currentUser = User(id: key, Dict: user!)
-                //Condition For current User In Not See In List
-                
-            }else{
-                // Exclude Current UYser All User See In List
-                self.users.append(User(id: key, Dict: user!))
+        Firestore.firestore().collection("Users").order(by: "Updated").addSnapshotListener { (snapshot, error) in
+            guard error == nil else{
+                ChatsViewController.showUniversalLoadingView(false)
+                return
+            }
+            self.users = []
+            for gData in snapshot!.documents{
+               let data = gData.data()
+                let usr = data["EmailId"] as? String
+                let type = data["Type"] as? String
+                let members = data["Members"] as? [String]
+                if Auth.auth().currentUser?.email == usr!.lowercased() && type == "person"{
+                    self.currentUser = UserList(Dict: gData.data())
+                    //Condition For current User In Not See In List
+                    
+                }else if type == "group" && members?.contains((Auth.auth().currentUser?.email)!) == true{
+                    // Exclude Current UYser All User See In List
+                    self.users.append(UserList(Dict: gData.data()))
+                }else if Auth.auth().currentUser?.email != usr!.lowercased() && type == "person"{
+                    // Exclude Current UYser All User See In List
+                    self.users.append(UserList(Dict: gData.data()))
+                }
             }
             self.ChatsTBL.reloadData()
             ChatsViewController.showUniversalLoadingView(false)
-            
-//            //Add Into Cloud Storage
-//            let data: [String: Any] = [
-//                "users":self.currentUser?.email!
-//            ]
-//            Firestore.firestore().collection("Chats").addDocument(data: data) { (err) in
-//                guard err == nil else{
-//                    print(err!)
-//                    return
-//                }
-//                print(data)
-//            }
-            
         }
     }
-    
-  
 }
 //MARK: - Table View Setup
 extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
@@ -87,29 +151,35 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
+        
+        //if indexPath.row < users.count{
         cell.name.text = users[indexPath.row].name
         cell.messageLBL.text = users[indexPath.row].email
-        cell.timeLBL.text = users[indexPath.row].createdDate
+        cell.timeLBL.text = self.gettimefromDate(date: (users[indexPath.row].Updated?.dateValue())!)
         
         // Load Image From Url
-       // ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
+        // ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
         if users[indexPath.row].profileImage != nil{
             URLSession.shared.dataTask(with: URL(string: users[indexPath.row].profileImage!)!) { (data, response, error) in
                 guard error == nil else{
-                    cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                    DispatchQueue.main.async {
+                        cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                    }
                     ChatsViewController.showUniversalLoadingView(false)
                     return
                 }
                 guard let imageData = data else{
-                    cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-                        ChatsViewController.showUniversalLoadingView(false)
+                    DispatchQueue.main.async {
+                        cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                    }
+                    ChatsViewController.showUniversalLoadingView(false)
                     return
                 }
                 
                 DispatchQueue.main.async {
                     guard let image = UIImage(data: imageData) else{
                         cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-                            ChatsViewController.showUniversalLoadingView(false)
+                        ChatsViewController.showUniversalLoadingView(false)
                         return
                     }
                     ChatsViewController.showUniversalLoadingView(false)
@@ -118,8 +188,22 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
             }.resume()
         }else{
             ChatsViewController.showUniversalLoadingView(false)
-            cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+            DispatchQueue.main.async {
+                cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+            }
         }
+        // }
+        //        else{
+        //
+        //            cell.createdLBL.isHidden = true
+        //            cell.timeLBL.textAlignment = .center
+        //            let groupIndex = indexPath.row - users.count
+        //            cell.name.text = groups[groupIndex].value(forKey: "GroupName") as? String
+        //            cell.messageLBL.text = "Admin:\(groups[groupIndex].value(forKey: "Admin")!)"
+        //            let members = groups[groupIndex].value(forKey: "Users") as? [String]
+        //            cell.timeLBL.text = "\(members!.count) Members"
+        //        }
+        
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -142,5 +226,12 @@ extension UIView{
         self.layer.shadowOpacity = 0.5
         self.layer.shadowRadius = 7
         self.layer.cornerRadius = 10
+    }
+}
+extension UIViewController{
+    func gettimefromDate(date:Date)->String{
+        let dateFormetter = DateFormatter()
+        dateFormetter.dateFormat = "dd/MM/YY h:mm a"
+        return dateFormetter.string(from: date)
     }
 }

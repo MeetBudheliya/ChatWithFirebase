@@ -13,6 +13,7 @@ class ListCell: UITableViewCell {
     @IBOutlet weak var name: UILabel!
     @IBOutlet weak var messageLBL: UILabel!
     @IBOutlet weak var timeLBL: UILabel!
+    @IBOutlet weak var createdLBL: UILabel!
     override func awakeFromNib() {
         super.awakeFromNib()
         //Set Rounded Image

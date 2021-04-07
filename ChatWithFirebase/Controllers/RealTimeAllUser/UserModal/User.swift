@@ -20,3 +20,18 @@ class User: NSObject {
         self.createdDate = Dict["CreatedDate"] as? String
     }
 }
+import FirebaseFirestore
+class UserList: NSObject {
+    var name:String?
+    var email :String?
+    var profileImage:String?
+    var Updated:Timestamp?
+    var members:[String]?
+    init(Dict:[String:Any]) {
+        self.name = Dict["UserName"] as? String
+        self.email = Dict["EmailId"] as? String
+        self.profileImage = Dict["ProfileImage"] as? String
+        self.Updated = Dict["Updated"] as? Timestamp
+        self.members = Dict["Members"] as? [String]
+    }
+}

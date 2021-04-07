@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string></string>
-	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string></string>
-	<key>NSCameraUsageDescription</key>
-	<string></string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -29,7 +23,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>com.googleusercontent.apps.970624572837-4imgtdssa1a0uoepticjsb213bsr01u2</string>
+				<string>com.googleusercontent.apps.306065297297-0p8uh3ut1vut6rt1qq568rp6ckpbp8an</string>
 			</array>
 		</dict>
 	</array>
@@ -37,6 +31,12 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string></string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string></string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string></string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

@@ -57,7 +57,6 @@ class SignUpViewController: UIViewController {
                 return
             }
             
-            self.AddIntoGroup()
             let imageName = UUID().uuidString
             let PImage = self.profileImage.image
             let storageRef = Storage.storage().reference().child("ProfileImages").child("\(imageName).png")
@@ -77,9 +76,17 @@ class SignUpViewController: UIViewController {
                             self.Errorpopup(message: "Image Url Not Found")
                             return
                         }
-                        let values = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"CreatedDate":self.getCurrentDate()] as [String : Any]
+                        let values = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"Updated":self.getCurrentDate(),"Type":"person"] as [String : Any]
                         self.AddIntoUserList(uid: (result?.user.uid)!, values: values as [String:Any])
                         
+                        
+                        let valuess = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"Updated":Timestamp(),"Type":"person"] as [String : Any]
+                        Firestore.firestore().collection("Users").addDocument(data: valuess) { (err) in
+                            guard err == nil else{
+                                print(err?.localizedDescription)
+                                return
+                            }
+                        }
                     }
                 }
             }
@@ -88,37 +95,19 @@ class SignUpViewController: UIViewController {
         }
     }
     func AddIntoUserList(uid:String,values:[String:Any]){
+        
         let ref = Database.database().reference()
         let userRes = ref.child("user").child(uid)
         userRes.updateChildValues(values) { (err, dbRef) in
-            guard err == nil else{
-                self.Errorpopup(message: err!.localizedDescription)
-                return
+            if err != nil{
+                print(err?.localizedDescription)
             }
-            self.Errorpopup(message: "SucccessFully Register")
         }
 
+
+
     }
-    func AddIntoGroup(){
-        Firestore.firestore().collection("Groups").order(by: "Updated").addSnapshotListener { (snapshot, error) in
-            for docs in snapshot!.documents{
-                docs.data()
-            }
-        }
-        
-     let data: [String: Any] = [
-         "GroupName":"All Users",
-        "Users":Auth.auth().currentUser?.email!,
-        "Updated":Timestamp()
-     ]
-     Firestore.firestore().collection("Groups").addDocument(data: data) { (err) in
-         guard err == nil else{
-             print(err!)
-             return
-         }
-         print(data)
-     }
-     }
+
 }
 //MARK: - Image Picker
 extension SignUpViewController:UIImagePickerControllerDelegate,UINavigationControllerDelegate{
