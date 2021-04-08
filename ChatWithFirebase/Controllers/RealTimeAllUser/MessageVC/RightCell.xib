@@ -4,7 +4,6 @@
     <dependencies>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
-        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -26,10 +25,10 @@
                         </constraints>
                     </imageView>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PuZ-y3-IXY">
-                        <rect key="frame" x="226" y="8" width="128" height="66"/>
+                        <rect key="frame" x="223" y="8" width="131" height="66"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bTt-za-Xgc">
-                                <rect key="frame" x="101.5" y="49" width="21.5" height="12"/>
+                                <rect key="frame" x="104.5" y="49" width="21.5" height="12"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="G2a-gK-M7L"/>
                                 </constraints>
@@ -44,7 +43,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemGray4Color"/>
+                        <color key="backgroundColor" red="0.97133110129869016" green="0.68817921355500256" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="bTt-za-Xgc" secondAttribute="trailing" constant="5" id="9hP-zl-Y4a"/>
                             <constraint firstItem="Fld-b4-Oy4" firstAttribute="leading" secondItem="PuZ-y3-IXY" secondAttribute="leading" constant="5" id="A8O-wZ-eGn"/>
@@ -52,11 +51,11 @@
                             <constraint firstItem="bTt-za-Xgc" firstAttribute="top" secondItem="Fld-b4-Oy4" secondAttribute="bottom" constant="5" id="OpP-1b-HgH"/>
                             <constraint firstAttribute="bottom" secondItem="bTt-za-Xgc" secondAttribute="bottom" constant="5" id="TWw-jA-US7"/>
                             <constraint firstItem="bTt-za-Xgc" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="PuZ-y3-IXY" secondAttribute="leading" constant="10" id="ZX0-gA-On9"/>
-                            <constraint firstAttribute="trailing" secondItem="Fld-b4-Oy4" secondAttribute="trailing" constant="5" id="lmw-Ih-mnF"/>
+                            <constraint firstAttribute="trailing" secondItem="Fld-b4-Oy4" secondAttribute="trailing" constant="8" id="lmw-Ih-mnF"/>
                         </constraints>
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aoL-AN-gaG">
-                        <rect key="frame" x="35" y="8" width="128" height="66"/>
+                        <rect key="frame" x="35" y="8" width="131" height="66"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BfT-xv-HRk">
                                 <rect key="frame" x="5" y="49" width="21.5" height="12"/>
@@ -68,19 +67,19 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Labelahfg,aesdb," lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8vs-6r-Gxa">
-                                <rect key="frame" x="5" y="5" width="118" height="39"/>
+                                <rect key="frame" x="8" y="5" width="118" height="39"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="15"/>
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemGray4Color"/>
+                        <color key="backgroundColor" red="1" green="0.77314390949419842" blue="0.63479804597645728" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="BfT-xv-HRk" firstAttribute="top" secondItem="8vs-6r-Gxa" secondAttribute="bottom" constant="5" id="0gl-gw-CJ4"/>
                             <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="BfT-xv-HRk" secondAttribute="trailing" constant="5" id="ARF-Bg-RIG"/>
                             <constraint firstItem="8vs-6r-Gxa" firstAttribute="top" secondItem="aoL-AN-gaG" secondAttribute="top" constant="5" id="R6R-fw-Jxd"/>
                             <constraint firstItem="BfT-xv-HRk" firstAttribute="leading" secondItem="aoL-AN-gaG" secondAttribute="leading" constant="5" id="ThH-WL-vyB"/>
-                            <constraint firstItem="8vs-6r-Gxa" firstAttribute="leading" secondItem="aoL-AN-gaG" secondAttribute="leading" constant="5" id="aLf-sw-KP4"/>
+                            <constraint firstItem="8vs-6r-Gxa" firstAttribute="leading" secondItem="aoL-AN-gaG" secondAttribute="leading" constant="8" id="aLf-sw-KP4"/>
                             <constraint firstAttribute="bottom" secondItem="BfT-xv-HRk" secondAttribute="bottom" constant="5" id="xiy-7f-woe"/>
                             <constraint firstAttribute="trailing" secondItem="8vs-6r-Gxa" secondAttribute="trailing" constant="5" id="z26-zE-Vu6"/>
                         </constraints>
@@ -126,8 +125,5 @@
     </objects>
     <resources>
         <image name="person.circle.fill" catalog="system" width="128" height="121"/>
-        <systemColor name="systemGray4Color">
-            <color red="0.81960784313725488" green="0.81960784313725488" blue="0.83921568627450982" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </systemColor>
     </resources>
 </document>

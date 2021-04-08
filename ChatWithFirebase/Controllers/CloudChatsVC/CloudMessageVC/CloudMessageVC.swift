@@ -13,7 +13,7 @@ import FirebaseFirestore
 
 struct Messagee{
     let sender:String?
-    let receiver:String?
+    let receiver:[String]?
     let body:String?
     let messageTime:Timestamp?
     let type:String?
@@ -56,7 +56,18 @@ class CloudMessageVC: UIViewController {
             print("Enter Message")
             return
         }
-        AddNewMessage(msg: Messagee(sender: Auth.auth().currentUser?.email, receiver: receiverUser?.email, body: sender.text, messageTime: Timestamp(),type: type))
+        var receivers = [String]()
+        if (receiverUser?.type)! == "person"{
+            let receivertEmail = (receiverUser?.email)!
+            receivers = [receivertEmail]
+        }else if (receiverUser?.type)! == "group"{
+            for receiverEmail in receiverUser!.members!{
+                receivers.append(receiverEmail)
+            }
+        }
+        
+        AddNewMessage(msg: Messagee(sender: Auth.auth().currentUser?.email, receiver: receivers, body: sender.text, messageTime: Timestamp(),type: type))
+        receivers = []
         sender.text = nil
     }
     @IBAction func folderButton(_ sender: UIButton) {
@@ -74,80 +85,159 @@ extension CloudMessageVC:UITableViewDelegate,UITableViewDataSource{
         let cell = tableView.dequeueReusableCell(withIdentifier: "RightCell") as! RightCell
         let cellMSG = messages[indexPath.row]
         
-        if Auth.auth().currentUser?.email == cellMSG.sender && receiverUser?.email == cellMSG.receiver{
-            cell.receiverMsgView.isHidden = true
-            cell.receiverProfile.isHidden = true
-            cell.msgView.isHidden = false
-            cell.profile.isHidden = false
-            
-            cell.msg.text = cellMSG.body
-            cell.time.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
-            if let imgUrl = currentUser?.profileImage{
-                URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
-                    guard err == nil else{
-                        print(err!)
-                        DispatchQueue.main.async {
-                            cell.profile.image =  UIImage(systemName: "person.circle.fill")
-                        }
-                        return
-                    }
-                    guard let imgData = data else{
-                        DispatchQueue.main.async {
-                            cell.profile.image =  UIImage(systemName: "person.circle.fill")
-                        }
-                        return
-                    }
-                    
-                    DispatchQueue.main.async {
-                        guard let image = UIImage(data: imgData) else{
-                            cell.profile.image = UIImage(systemName: "person.circle.fill")
+        if type == "person"{
+            if Auth.auth().currentUser?.email == cellMSG.sender && receiverUser?.email == cellMSG.receiver![0]{
+                cell.receiverMsgView.isHidden = true
+                cell.receiverProfile.isHidden = true
+                cell.msgView.isHidden = false
+                cell.profile.isHidden = false
+                
+                cell.msg.text = cellMSG.body
+                cell.time.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
+                if let imgUrl = currentUser?.profileImage{
+                    URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
+                        guard err == nil else{
+                            print(err!)
+                            DispatchQueue.main.async {
+                                cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                            }
                             return
                         }
-                        cell.profile.image =  image
+                        guard let imgData = data else{
+                            DispatchQueue.main.async {
+                                cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                            }
+                            return
+                        }
+                        
+                        DispatchQueue.main.async {
+                            guard let image = UIImage(data: imgData) else{
+                                cell.profile.image = UIImage(systemName: "person.circle.fill")
+                                return
+                            }
+                            cell.profile.image =  image
+                        }
+                    }.resume()
+                }else{
+                    DispatchQueue.main.async {
+                        cell.profile.image =  UIImage(systemName: "person.circle.fill")
                     }
-                }.resume()
-            }else{
-                DispatchQueue.main.async {
-                    cell.profile.image =  UIImage(systemName: "person.circle.fill")
+                }
+                
+            }else if Auth.auth().currentUser?.email == cellMSG.receiver![0] && receiverUser?.email == cellMSG.sender{
+                cell.receiverMsgView.isHidden = false
+                cell.receiverProfile.isHidden = false
+                cell.msgView.isHidden = true
+                cell.profile.isHidden = true
+                
+                cell.receiverMsg.text = cellMSG.body
+                cell.receiverTime.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
+                if let imgUrl = receiverUser?.profileImage{
+                    URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
+                        guard err == nil else{
+                            print(err!)
+                            DispatchQueue.main.async {
+                                cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                            }
+                            return
+                        }
+                        guard let imgData = data else{
+                            DispatchQueue.main.async {
+                                cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                            }
+                            return
+                        }
+                        
+                        DispatchQueue.main.async {
+                            guard let image = UIImage(data: imgData) else{
+                                cell.receiverProfile.image = UIImage(systemName: "person.circle.fill")
+                                return
+                            }
+                            cell.receiverProfile.image = image
+                        }
+                    }.resume()
+                }else{
+                    DispatchQueue.main.async {
+                        cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+                    }
                 }
             }
-            
-        }else if Auth.auth().currentUser?.email == cellMSG.receiver && receiverUser?.email == cellMSG.sender{
-            cell.receiverMsgView.isHidden = false
-            cell.receiverProfile.isHidden = false
-            cell.msgView.isHidden = true
-            cell.profile.isHidden = true
-            
-            cell.receiverMsg.text = cellMSG.body
-            cell.receiverTime.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
-            if let imgUrl = receiverUser?.profileImage{
-                URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
-                    guard err == nil else{
-                        print(err!)
-                        DispatchQueue.main.async {
-                            cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
-                        }
-                        return
-                    }
-                    guard let imgData = data else{
-                        DispatchQueue.main.async {
-                            cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
-                        }
-                        return
-                    }
-                    
-                    DispatchQueue.main.async {
-                        guard let image = UIImage(data: imgData) else{
-                            cell.receiverProfile.image = UIImage(systemName: "person.circle.fill")
-                            return
-                        }
-                        cell.receiverProfile.image = image
-                    }
-                }.resume()
-            }else{
-                DispatchQueue.main.async {
-                    cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
-                }
+        }else if type == "group"{
+            if Auth.auth().currentUser?.email == cellMSG.sender && receiverUser?.members == cellMSG.receiver{
+                cell.receiverMsgView.isHidden = true
+                cell.receiverProfile.isHidden = true
+                cell.msgView.isHidden = false
+                cell.profile.isHidden = false
+                
+                cell.msg.text = cellMSG.body
+                cell.time.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
+//                if let imgUrl = currentUser?.profileImage{
+//                    URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
+//                        guard err == nil else{
+//                            print(err!)
+//                            DispatchQueue.main.async {
+//                                cell.profile.image =  UIImage(systemName: "person.circle.fill")
+//                            }
+//                            return
+//                        }
+//                        guard let imgData = data else{
+//                            DispatchQueue.main.async {
+//                                cell.profile.image =  UIImage(systemName: "person.circle.fill")
+//                            }
+//                            return
+//                        }
+//
+//                        DispatchQueue.main.async {
+//                            guard let image = UIImage(data: imgData) else{
+//                                cell.profile.image = UIImage(systemName: "person.circle.fill")
+//                                return
+//                            }
+//                            cell.profile.image =  image
+//                        }
+//                    }.resume()
+//                }else{
+//                    DispatchQueue.main.async {
+//                        cell.profile.image =  UIImage(systemName: "person.circle.fill")
+//                    }
+//                }
+                
+            }else if receiverUser?.members == cellMSG.receiver{
+                cell.receiverMsgView.isHidden = false
+                cell.receiverProfile.isHidden = false
+                cell.msgView.isHidden = true
+                cell.profile.isHidden = true
+                
+                cell.receiverMsg.text = cellMSG.body
+                cell.receiverTime.text = getTimeFromTimestamp(time: cellMSG.messageTime!)
+//                if let imgUrl = receiverUser?.profileImage{
+//                    URLSession.shared.dataTask(with: URL(string: imgUrl)!) { (data, res, err) in
+//                        guard err == nil else{
+//                            print(err!)
+//                            DispatchQueue.main.async {
+//                                cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+//                            }
+//                            return
+//                        }
+//                        guard let imgData = data else{
+//                            DispatchQueue.main.async {
+//                                cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+//                            }
+//                            return
+//                        }
+//
+//                        DispatchQueue.main.async {
+//                            guard let image = UIImage(data: imgData) else{
+//                                cell.receiverProfile.image = UIImage(systemName: "person.circle.fill")
+//                                return
+//                            }
+//                            cell.receiverProfile.image = image
+//                        }
+//                    }.resume()
+//                }else{
+//                    DispatchQueue.main.async {
+//                        cell.receiverProfile.image =  UIImage(systemName: "person.circle.fill")
+//                    }
+//                }
             }
         }
        // self.delegate?.SendLastMSGTime(msg: cellMSG.body!, time: getTimeFromTimestamp(time: cellMSG.messageTime!),receiver: (receiverUser?.email)!)
@@ -194,15 +284,20 @@ extension CloudMessageVC{
             }
             for msgData in query!.documents{
                 let data = msgData.data()
-                if data["Type"] as! String == "person"{
-                    if (Auth.auth().currentUser?.email == data["sender"] as! String && self.receiverUser?.email == data["receiver"] as! String) || (Auth.auth().currentUser?.email == data["receiver"] as! String && self.receiverUser?.email == data["sender"] as! String){
-                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? String, body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
-                        self.messages.append(msg)
+                if self.type == "person"{
+                    let receiver = data["receiver"] as? [String]
+                    let receiverUser = receiver![0]
+                    if receiver?.count == 1{
+                        if (Auth.auth().currentUser?.email == data["sender"] as? String && (self.receiverUser?.email)! == receiverUser) || (Auth.auth().currentUser?.email == receiverUser && self.receiverUser?.email == data["sender"] as? String){
+                            let msg = Messagee(sender: data["sender"] as? String , receiver: [receiverUser], body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                            self.messages.append(msg)
+                        }
                     }
-                }else if data["Type"] as! String == "group"{
-                    let members = data["Members"] as? [String]
-                    if members?.contains((Auth.auth().currentUser?.email)!) == true{
-                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? String, body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                }else if self.type == "group"{
+                    let members = data["receiver"] as? [String]
+                    
+                    if members?.contains((Auth.auth().currentUser?.email)!) == true && self.receiverUser?.members == members{
+                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? [String], body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
                         self.messages.append(msg)
                     }
                 }

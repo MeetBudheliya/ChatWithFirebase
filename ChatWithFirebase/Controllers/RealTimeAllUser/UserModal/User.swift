@@ -27,11 +27,13 @@ class UserList: NSObject {
     var profileImage:String?
     var Updated:Timestamp?
     var members:[String]?
+    var type:String?
     init(Dict:[String:Any]) {
         self.name = Dict["UserName"] as? String
-        self.email = Dict["EmailId"] as? String
+       self.email = Dict["EmailId"] as? String
         self.profileImage = Dict["ProfileImage"] as? String
         self.Updated = Dict["Updated"] as? Timestamp
         self.members = Dict["Members"] as? [String]
+        self.type = Dict["Type"] as? String
     }
 }

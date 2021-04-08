@@ -14,9 +14,13 @@ class ChatsViewController: UIViewController {
     
     @IBOutlet weak var ChatsTBL: UITableView!
     @IBOutlet weak var createGroupBTN: UIButton!
+    @IBOutlet weak var joinGroupBTN: UIButton!
     var users = [UserList]()
     var groups = [NSDictionary]()
     var currentUser:UserList?
+    var isNewCreate = 0
+    var isJoin = 0
+    var isOpenChat = true
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,6 +32,8 @@ class ChatsViewController: UIViewController {
     }
     override func viewDidAppear(_ animated: Bool) {
         // GetUsers()
+        self.joinGroupBTN.setTitle("Join Group", for: .normal)
+        self.createGroupBTN.setTitle("Create Group", for: .normal)
         GetList()
     }
     
@@ -45,74 +51,136 @@ class ChatsViewController: UIViewController {
         self.navigationController?.pushViewController(VC, animated: true)
     }
     
+    
+    @IBAction func joinGroup(_ sender: Any) {
+       JoinGroup()
+    }
     @IBAction func createGroupClicked(_ sender: Any) {
         print("Create Group")
         CreateGroupBTNClick()
     }
+    
     //Add Group Button Action Function
+    //MARK: - Create Group
     func CreateGroupBTNClick(){
-        let popup = UIAlertController(title: "Create Group", message: "Enter Group Name", preferredStyle: .alert)
-        popup.addAction(UIAlertAction(title: "Create", style: .default, handler: { (alert) in
-            guard let GroupName = popup.textFields![0].text else{
-                return
-            }
-            var usersEmail = [self.currentUser?.email]
-            for user in self.users{
-                usersEmail.append(user.email!)
-            }
-            let data: [String: Any] = [
-                "UserName": GroupName,
-                "Members":usersEmail,
-                "EmailId":usersEmail[0]!,
-                "Type":"group",
-                "Updated":Timestamp()
-            ]
-            Firestore.firestore().collection("Users").addDocument(data: data) { (err) in
-                guard err == nil else{
-                    print(err!)
+        if isJoin == 0{
+            if isNewCreate == 0{
+                self.ChatsTBL.allowsMultipleSelection = true
+                self.createGroupBTN.setTitle("Confirm", for: .normal)
+                self.navigationItem.title = "Select Users"
+                isNewCreate = 1
+                isOpenChat = false
+                self.joinGroupBTN.setTitle("Cancel", for: .normal)
+                
+                var usersList = [UserList]()
+                for user in users {
+                    if user.type == "person"{
+                        usersList.append(user)
+                    }
+                }
+                self.users = usersList
+                self.ChatsTBL.reloadData()
+            }else if isNewCreate == 1{
+                guard let selcted = self.ChatsTBL.indexPathsForSelectedRows else{
+                    self.Errorpopup(message: "Select User To Make Group")
                     return
                 }
-                print(data)
-              //  self.users.append(UserList(Dict: data))
-                self.ChatsTBL.reloadData()
+                
+                
+                var NewGroupUsers  = [self.currentUser?.email]
+                for index in selcted{
+                    let ind = index.row
+                    let usr = self.users[ind].email
+                    NewGroupUsers.append(usr)
+                }
+                
+                let popup = UIAlertController(title: "Create Group", message: "Enter Group Name", preferredStyle: .alert)
+                popup.addAction(UIAlertAction(title: "Create", style: .default, handler: { (alert) in
+                    guard let GroupName = popup.textFields![0].text else{
+                        return
+                    }
+                    //                var usersEmail = [self.currentUser?.email]
+                    //                for user in self.users{
+                    //                    usersEmail.append(user.email!)
+                    //                }
+                    let data: [String: Any] = [
+                        "UserName": GroupName,
+                        "Members":NewGroupUsers,
+                        "EmailId":NewGroupUsers[0]!,
+                        "Type":"group",
+                        "Updated":Timestamp()
+                    ]
+                    Firestore.firestore().collection("Users").addDocument(data: data) { (err) in
+                        guard err == nil else{
+                            print(err!)
+                            return
+                        }
+                        print(data)
+                        self.joinGroupBTN.setTitle("Join Group", for: .normal)
+                        self.navigationItem.title = self.currentUser?.name
+                        self.createGroupBTN.setTitle("Create Group", for: .normal)
+                        self.isNewCreate = 0
+                        self.isOpenChat = true
+                        self.ChatsTBL.allowsMultipleSelection = false
+                        //  self.users.append(UserList(Dict: data))
+                        self.ChatsTBL.reloadData()
+                    }
+                    
+                }))
+                popup.addTextField { (textField) in
+                    textField.placeholder = "Enter Group Name Here"
+                }
+                popup.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (alert) in
+                    //
+                }))
+                
+                
+                self.present(popup, animated: true, completion: nil)
             }
-            
-        }))
-        popup.addTextField { (textField) in
-            textField.placeholder = "Enter Group Name Here"
+        }else{
+            print("JoinCancel")
+            self.createGroupBTN.setTitle("Create Group", for: .normal)
+            self.navigationItem.title = self.currentUser?.name
+            self.GetList()
+            self.isJoin = 0
+            self.isOpenChat = true
         }
-        popup.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (alert) in
-            //
-        }))
-        self.present(popup, animated: true, completion: nil)
+        
+    }
+    
+    //MARK: - Join Group
+    func JoinGroup(){
+        if isNewCreate == 0{
+            print("JoinClick")
+                var usersList = [UserList]()
+                for user in users {
+                    if user.type == "group"{
+                        usersList.append(user)
+                    }
+                }
+                self.users = usersList
+                self.ChatsTBL.reloadData()
+                self.createGroupBTN.setTitle("Cancel", for: .normal)
+                self.isJoin = 1
+            self.isOpenChat = false
+            self.navigationItem.title = "Select Group"
+            
+        }else{
+            self.joinGroupBTN.setTitle("Join Group", for: .normal)
+            self.navigationItem.title = self.currentUser?.name
+            self.createGroupBTN.setTitle("Create Group", for: .normal)
+            self.isNewCreate = 0
+            self.isOpenChat = true
+            self.ChatsTBL.allowsMultipleSelection = false
+            self.GetList()
+            print("Cancel")
+        }
     }
     
 }
 
 //MARK: - Get User List From RealTime Registered
 extension ChatsViewController{
-    func GetUsers(){
-        //        self.users = []
-        //        ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
-        //        Database.database().reference().child("user").observe(.childAdded) { (snapshot) in
-        //            print(snapshot)
-        //            let key = snapshot.key
-        //            let user = snapshot.value as? [String:Any]
-        //            let userEmail = user!["EmailId"] as? String
-        //
-        //
-        //            if Auth.auth().currentUser?.email == userEmail?.lowercased(){
-        //                self.currentUser = User(id: key, Dict: user!)
-        //                //Condition For current User In Not See In List
-        //
-        //            }else{
-        //                // Exclude Current UYser All User See In List
-        //                self.users.append(User(id: key, Dict: user!))
-        //            }
-        //            self.ChatsTBL.reloadData()
-        //            ChatsViewController.showUniversalLoadingView(false)
-        //        }
-    }
     func GetList(){
         ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
         Firestore.firestore().collection("Users").order(by: "Updated").addSnapshotListener { (snapshot, error) in
@@ -122,12 +190,13 @@ extension ChatsViewController{
             }
             self.users = []
             for gData in snapshot!.documents{
-               let data = gData.data()
+                let data = gData.data()
                 let usr = data["EmailId"] as? String
                 let type = data["Type"] as? String
                 let members = data["Members"] as? [String]
                 if Auth.auth().currentUser?.email == usr!.lowercased() && type == "person"{
                     self.currentUser = UserList(Dict: gData.data())
+                    self.navigationItem.title = self.currentUser?.name
                     //Condition For current User In Not See In List
                     
                 }else if type == "group" && members?.contains((Auth.auth().currentUser?.email)!) == true{
@@ -152,9 +221,12 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
         
-        //if indexPath.row < users.count{
         cell.name.text = users[indexPath.row].name
-        cell.messageLBL.text = users[indexPath.row].email
+        if users[indexPath.row].type == "person"{
+            cell.messageLBL.text = users[indexPath.row].email
+        }else if users[indexPath.row].type == "group"{
+            cell.messageLBL.text = "\(users[indexPath.row].members!.count) Members"
+        }
         cell.timeLBL.text = self.gettimefromDate(date: (users[indexPath.row].Updated?.dateValue())!)
         
         // Load Image From Url
@@ -207,17 +279,56 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
         return cell
     }
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CloudMessageVC") as! CloudMessageVC
-        vc.receiverUser = users[indexPath.row]
-        vc.currentUser = currentUser
-        self.navigationController?.pushViewController(vc, animated: true)
+        
+        if isOpenChat{
+            tableView.deselectRow(at: indexPath, animated: true)
+            let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CloudMessageVC") as! CloudMessageVC
+            vc.receiverUser = users[indexPath.row]
+            vc.currentUser = currentUser
+            vc.type = users[indexPath.row].type!
+            self.navigationController?.pushViewController(vc, animated: true)
+        }else{
+            print("\(indexPath.row) Selected")
+            if isJoin == 1{
+                print("Join : \(indexPath.row)")
+                
+                let alert = UIAlertController(title: "Join \((users[indexPath.row].name)!)", message: "Are You Sure", preferredStyle: .alert)
+                alert.addAction(UIAlertAction(title: "Join", style: .default, handler: { (okClick) in
+                    print("Joined \((self.users[indexPath.row].name)!)")
+                    
+                   
+                    
+                    //After Joined All Data Reload
+                    tableView.deselectRow(at: indexPath, animated: true)
+                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CloudMessageVC") as! CloudMessageVC
+                    vc.receiverUser = self.users[indexPath.row]
+                    vc.currentUser = self.currentUser
+                    vc.type = self.users[indexPath.row].type!
+                    self.navigationController?.pushViewController(vc, animated: true)
+                    
+                }))
+                alert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (cancel) in
+                    print("JoinCancel")
+                    tableView.deselectRow(at: indexPath, animated: true)
+                }))
+                self.present(alert, animated: true, completion: nil)
+                
+                
+            }
+//            let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
+//            cell.profileImage.image = UIImage(named: "C")
+        }
+        
     }
-    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        print("\(indexPath.row) Deselected")
+//        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
+//        cell.profileImage.image = UIImage(named: "NC")
+    }
 }
 
 
-
+//MARK: - Shadow Setup
 extension UIView{
     func SetShaowInView(){
         self.layer.masksToBounds = false
@@ -228,6 +339,8 @@ extension UIView{
         self.layer.cornerRadius = 10
     }
 }
+
+//MARK: - Get Message Time
 extension UIViewController{
     func gettimefromDate(date:Date)->String{
         let dateFormetter = DateFormatter()

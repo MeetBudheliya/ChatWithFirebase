@@ -22,6 +22,8 @@ class ListCell: UITableViewCell {
        profileImage.layer.borderColor = UIColor.black.cgColor
         profileImage.clipsToBounds = true
         profileImage.layer.cornerRadius = profileImage.frame.height/2
+        
+        profileImage.superview?.layer.cornerRadius = (profileImage.superview?.frame.height)!/2
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {

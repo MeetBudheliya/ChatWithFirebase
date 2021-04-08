@@ -141,30 +141,46 @@
                                     </tableViewCell>
                                 </prototypes>
                             </tableView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tD3-YY-svU">
+                            <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="center" spacing="10" translatesAutoresizingMaskIntoConstraints="NO" id="Fld-TD-L6N">
                                 <rect key="frame" x="0.0" y="812" width="414" height="50"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="R5y-tK-aye">
+                                        <rect key="frame" x="0.0" y="8.5" width="202" height="33"/>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                        <state key="normal" title="Join Group"/>
+                                        <connections>
+                                            <action selector="joinGroup:" destination="MYv-rQ-zAX" eventType="touchUpInside" id="nyH-2Z-1aS"/>
+                                        </connections>
+                                    </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tD3-YY-svU">
+                                        <rect key="frame" x="212" y="0.0" width="202" height="50"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="50" id="RyT-lW-jbe"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
+                                        <state key="normal" title="Create Group">
+                                            <color key="titleColor" systemColor="linkColor"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="createGroupClicked:" destination="MYv-rQ-zAX" eventType="touchUpInside" id="b7k-LM-CfI"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="RyT-lW-jbe"/>
+                                    <constraint firstAttribute="height" constant="50" id="Q4q-lx-2rA"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="17"/>
-                                <state key="normal" title="Create Group">
-                                    <color key="titleColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </state>
-                                <connections>
-                                    <action selector="createGroupClicked:" destination="MYv-rQ-zAX" eventType="touchUpInside" id="b7k-LM-CfI"/>
-                                </connections>
-                            </button>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="7bc-kt-cLb"/>
                         <color key="backgroundColor" systemColor="systemGray3Color"/>
                         <constraints>
                             <constraint firstItem="DYy-pW-GcA" firstAttribute="leading" secondItem="7bc-kt-cLb" secondAttribute="leading" id="3ts-JE-7fy"/>
-                            <constraint firstItem="7bc-kt-cLb" firstAttribute="trailing" secondItem="tD3-YY-svU" secondAttribute="trailing" id="FV4-DF-ndf"/>
-                            <constraint firstItem="tD3-YY-svU" firstAttribute="leading" secondItem="7bc-kt-cLb" secondAttribute="leading" id="TFJ-Ig-tOa"/>
+                            <constraint firstItem="7bc-kt-cLb" firstAttribute="trailing" secondItem="Fld-TD-L6N" secondAttribute="trailing" id="LTM-6j-M6M"/>
+                            <constraint firstItem="Fld-TD-L6N" firstAttribute="top" secondItem="DYy-pW-GcA" secondAttribute="bottom" id="SgO-G5-P1t"/>
+                            <constraint firstItem="Fld-TD-L6N" firstAttribute="leading" secondItem="2HB-h8-ukc" secondAttribute="leading" id="Vuk-sC-BBO"/>
                             <constraint firstItem="7bc-kt-cLb" firstAttribute="trailing" secondItem="DYy-pW-GcA" secondAttribute="trailing" id="bb6-0C-tMG"/>
                             <constraint firstItem="DYy-pW-GcA" firstAttribute="top" secondItem="7bc-kt-cLb" secondAttribute="top" id="cOh-ba-xmT"/>
-                            <constraint firstItem="tD3-YY-svU" firstAttribute="bottom" secondItem="7bc-kt-cLb" secondAttribute="bottom" id="fb4-dh-WhG"/>
-                            <constraint firstItem="tD3-YY-svU" firstAttribute="top" secondItem="DYy-pW-GcA" secondAttribute="bottom" id="vDm-sX-dWe"/>
+                            <constraint firstItem="7bc-kt-cLb" firstAttribute="bottom" secondItem="Fld-TD-L6N" secondAttribute="bottom" id="h0u-Ee-lZr"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Cloud" id="Adv-mS-duY">
@@ -185,6 +201,7 @@
                     <connections>
                         <outlet property="ChatsTBL" destination="DYy-pW-GcA" id="T0O-au-ZVj"/>
                         <outlet property="createGroupBTN" destination="tD3-YY-svU" id="tv8-WM-man"/>
+                        <outlet property="joinGroupBTN" destination="R5y-tK-aye" id="o9R-bI-cuz"/>
                         <segue destination="cGa-nD-viF" kind="push" id="MOa-X8-bzW"/>
                         <segue destination="1KM-xf-se2" kind="presentation" identifier="SignOutClicked" modalPresentationStyle="overFullScreen" modalTransitionStyle="crossDissolve" id="DOI-rb-Ula"/>
                         <segue destination="xn7-2w-xmM" kind="push" id="hY2-qg-bOf"/>
@@ -762,6 +779,9 @@
         <namedColor name="AppColor">
             <color red="0.33300000429153442" green="0.7369999885559082" blue="0.96100002527236938" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="linkColor">
+            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
