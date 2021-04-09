@@ -28,12 +28,22 @@
                                     <constraint firstAttribute="width" constant="45" id="uwC-qg-EVx"/>
                                 </constraints>
                             </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tZF-ad-5QX">
+                                <rect key="frame" x="5" y="5" width="35" height="35"/>
+                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="17"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
+                            <constraint firstItem="tZF-ad-5QX" firstAttribute="top" secondItem="GGb-Io-UrU" secondAttribute="top" constant="5" id="M9g-9r-PHz"/>
                             <constraint firstItem="iHK-at-Niz" firstAttribute="centerX" secondItem="GGb-Io-UrU" secondAttribute="centerX" id="Rly-sq-5p5"/>
+                            <constraint firstAttribute="bottom" secondItem="tZF-ad-5QX" secondAttribute="bottom" constant="5" id="Unq-ok-Zpw"/>
+                            <constraint firstAttribute="trailing" secondItem="tZF-ad-5QX" secondAttribute="trailing" constant="5" id="jWq-85-wAS"/>
                             <constraint firstItem="iHK-at-Niz" firstAttribute="centerY" secondItem="GGb-Io-UrU" secondAttribute="centerY" id="ppZ-Zy-aTB"/>
                             <constraint firstAttribute="height" constant="45" id="qQt-Tb-aqz"/>
+                            <constraint firstItem="tZF-ad-5QX" firstAttribute="leading" secondItem="GGb-Io-UrU" secondAttribute="leading" constant="5" id="v66-Db-uPE"/>
                             <constraint firstAttribute="width" constant="45" id="xDE-CY-Ljg"/>
                         </constraints>
                     </view>
@@ -88,6 +98,7 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="createdLBL" destination="wY9-i2-zFD" id="ahu-bY-f9w"/>
+                <outlet property="gIconImage" destination="tZF-ad-5QX" id="VOi-cY-ETP"/>
                 <outlet property="messageLBL" destination="svg-2E-L4O" id="TGB-sw-5fD"/>
                 <outlet property="name" destination="4CL-et-vKu" id="P6T-7W-R6H"/>
                 <outlet property="profileImage" destination="iHK-at-Niz" id="gwW-jt-dZP"/>

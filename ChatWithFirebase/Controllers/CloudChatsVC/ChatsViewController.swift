@@ -9,18 +9,21 @@ import UIKit
 import FirebaseDatabase
 import FirebaseAuth
 import FirebaseFirestore
+import FirebaseStorage
 
 class ChatsViewController: UIViewController {
     
     @IBOutlet weak var ChatsTBL: UITableView!
     @IBOutlet weak var createGroupBTN: UIButton!
     @IBOutlet weak var joinGroupBTN: UIButton!
+    let db = Firestore.firestore()
     var users = [UserList]()
     var groups = [NSDictionary]()
     var currentUser:UserList?
     var isNewCreate = 0
     var isJoin = 0
     var isOpenChat = true
+    var isJoinAgain = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -32,6 +35,9 @@ class ChatsViewController: UIViewController {
     }
     override func viewDidAppear(_ animated: Bool) {
         // GetUsers()
+        isNewCreate = 0
+        isJoin = 0
+        isOpenChat = true
         self.joinGroupBTN.setTitle("Join Group", for: .normal)
         self.createGroupBTN.setTitle("Create Group", for: .normal)
         GetList()
@@ -103,27 +109,40 @@ class ChatsViewController: UIViewController {
                     //                for user in self.users{
                     //                    usersEmail.append(user.email!)
                     //                }
-                    let data: [String: Any] = [
-                        "UserName": GroupName,
-                        "Members":NewGroupUsers,
-                        "EmailId":NewGroupUsers[0]!,
-                        "Type":"group",
-                        "Updated":Timestamp()
-                    ]
-                    Firestore.firestore().collection("Users").addDocument(data: data) { (err) in
-                        guard err == nil else{
-                            print(err!)
-                            return
+                    let imageName = UUID().uuidString
+                    
+                    let PImage = UIImage(named: "NC")
+                    let storageRef = Storage.storage().reference().child("ProfileImages").child("\(imageName).png")
+                    if let UploadProfile = PImage?.jpegData(compressionQuality: 1.0){
+                        storageRef.putData(UploadProfile, metadata: nil) { (StorageData, err) in
+                            guard err == nil else{
+                                self.Errorpopup(message: err!.localizedDescription)
+                                return
+                            }
+                            storageRef.downloadURL { (url, errr) in
+                                guard errr == nil else{
+                                    self.Errorpopup(message: errr!.localizedDescription)
+                                    return
+                                }
+                                guard let Imageurl = url else{
+                                    self.Errorpopup(message: "Image Url Not Found")
+                                    return
+                                }
+                                
+                                let id = UUID().uuidString
+                                let data: [String: Any] = [
+                                    "Id": id,
+                                    "UserName": GroupName,
+                                    "Members":NewGroupUsers,
+                                    "EmailId":NewGroupUsers[0]!,
+                                    "ProfileImage":Imageurl.absoluteString,
+                                    "Type":"group",
+                                    "Updated":Timestamp()
+                                ]
+                                
+                                self.createNewGroup(id: id,data: data)  // Function For Create New Group From Selected Persons
+                            }
                         }
-                        print(data)
-                        self.joinGroupBTN.setTitle("Join Group", for: .normal)
-                        self.navigationItem.title = self.currentUser?.name
-                        self.createGroupBTN.setTitle("Create Group", for: .normal)
-                        self.isNewCreate = 0
-                        self.isOpenChat = true
-                        self.ChatsTBL.allowsMultipleSelection = false
-                        //  self.users.append(UserList(Dict: data))
-                        self.ChatsTBL.reloadData()
                     }
                     
                 }))
@@ -148,17 +167,42 @@ class ChatsViewController: UIViewController {
         
     }
     
+    //MARK: - Create Group Function
+    func createNewGroup(id:String ,data: [String: Any]){
+        db.collection("Users").document(id).setData(data, completion: { (err) in
+            guard err == nil else{
+                print(err!)
+                return
+            }
+            print(data)
+            self.joinGroupBTN.setTitle("Join Group", for: .normal)
+            self.navigationItem.title = self.currentUser?.name
+            self.createGroupBTN.setTitle("Create Group", for: .normal)
+            self.isNewCreate = 0
+            self.isOpenChat = true
+            self.ChatsTBL.allowsMultipleSelection = false
+            //  self.users.append(UserList(Dict: data))
+            self.ChatsTBL.reloadData()
+        })
+    }
+    
     //MARK: - Join Group
     func JoinGroup(){
         if isNewCreate == 0{
+            if isJoinAgain{
+                self.Errorpopup(message: "Select For Join")
+            }else{
+                isJoinAgain = true
+            }
             print("JoinClick")
-                var usersList = [UserList]()
-                for user in users {
-                    if user.type == "group"{
-                        usersList.append(user)
-                    }
-                }
-                self.users = usersList
+//                var usersList = [UserList]()
+//                for user in users {
+//                    if user.type == "group"{
+//                        usersList.append(user)
+//                    }
+//                }
+//                self.users = usersList
+            self.GetGroups()
                 self.ChatsTBL.reloadData()
                 self.createGroupBTN.setTitle("Cancel", for: .normal)
                 self.isJoin = 1
@@ -183,7 +227,7 @@ class ChatsViewController: UIViewController {
 extension ChatsViewController{
     func GetList(){
         ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
-        Firestore.firestore().collection("Users").order(by: "Updated").addSnapshotListener { (snapshot, error) in
+        db.collection("Users").order(by: "Updated").addSnapshotListener { (snapshot, error) in
             guard error == nil else{
                 ChatsViewController.showUniversalLoadingView(false)
                 return
@@ -207,6 +251,27 @@ extension ChatsViewController{
                     self.users.append(UserList(Dict: gData.data()))
                 }
             }
+                self.ChatsTBL.reloadData()
+
+            ChatsViewController.showUniversalLoadingView(false)
+        }
+    }
+    
+    func GetGroups(){
+        ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
+        db.collection("Users").order(by: "Updated").addSnapshotListener { (snapshot, error) in
+            guard error == nil else{
+                ChatsViewController.showUniversalLoadingView(false)
+                return
+            }
+            self.users = []
+            for gData in snapshot!.documents{
+                let data = gData.data()
+                let type = data["Type"] as? String
+                if type == "group"{
+                    self.users.append(UserList(Dict: gData.data()))
+                }
+            }
             self.ChatsTBL.reloadData()
             ChatsViewController.showUniversalLoadingView(false)
         }
@@ -217,67 +282,76 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return users.count
     }
-    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
+    let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
+    
+    cell.name.text = users[indexPath.row].name
+    if users[indexPath.row].type == "person"{
+        cell.messageLBL.text = users[indexPath.row].email
+        cell.gIconImage.isHidden = true
+    }else if users[indexPath.row].type == "group"{
         
-        cell.name.text = users[indexPath.row].name
-        if users[indexPath.row].type == "person"{
-            cell.messageLBL.text = users[indexPath.row].email
-        }else if users[indexPath.row].type == "group"{
-            cell.messageLBL.text = "\(users[indexPath.row].members!.count) Members"
+        cell.gIconImage.isHidden = false
+        cell.profileImage.isHidden = true
+        var firstChar = [Character]()
+        for char in users[indexPath.row].name! {
+            firstChar.append(char)
         }
-        cell.timeLBL.text = self.gettimefromDate(date: (users[indexPath.row].Updated?.dateValue())!)
         
-        // Load Image From Url
-        // ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
-        if users[indexPath.row].profileImage != nil{
-            URLSession.shared.dataTask(with: URL(string: users[indexPath.row].profileImage!)!) { (data, response, error) in
-                guard error == nil else{
-                    DispatchQueue.main.async {
-                        cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-                    }
-                    ChatsViewController.showUniversalLoadingView(false)
-                    return
-                }
-                guard let imageData = data else{
-                    DispatchQueue.main.async {
-                        cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-                    }
-                    ChatsViewController.showUniversalLoadingView(false)
-                    return
-                }
-                
-                DispatchQueue.main.async {
-                    guard let image = UIImage(data: imageData) else{
-                        cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-                        ChatsViewController.showUniversalLoadingView(false)
-                        return
-                    }
-                    ChatsViewController.showUniversalLoadingView(false)
-                    cell.profileImage.image = image
-                }
-            }.resume()
-        }else{
-            ChatsViewController.showUniversalLoadingView(false)
-            DispatchQueue.main.async {
-                cell.profileImage.image = UIImage(systemName: "person.circle.fill")
-            }
-        }
-        // }
-        //        else{
-        //
-        //            cell.createdLBL.isHidden = true
-        //            cell.timeLBL.textAlignment = .center
-        //            let groupIndex = indexPath.row - users.count
-        //            cell.name.text = groups[groupIndex].value(forKey: "GroupName") as? String
-        //            cell.messageLBL.text = "Admin:\(groups[groupIndex].value(forKey: "Admin")!)"
-        //            let members = groups[groupIndex].value(forKey: "Users") as? [String]
-        //            cell.timeLBL.text = "\(members!.count) Members"
-        //        }
-        
-        return cell
+        cell.gIconImage.text = "\(firstChar[0].uppercased())"
+        cell.messageLBL.text = "\(users[indexPath.row].members!.count) Members"
     }
+    cell.timeLBL.text = self.gettimefromDate(date: (users[indexPath.row].Updated?.dateValue())!)
+    
+    // Load Image From Url
+    // ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
+    if users[indexPath.row].profileImage != nil{
+        URLSession.shared.dataTask(with: URL(string: users[indexPath.row].profileImage!)!) { (data, response, error) in
+            guard error == nil else{
+                DispatchQueue.main.async {
+                    cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                }
+                ChatsViewController.showUniversalLoadingView(false)
+                return
+            }
+            guard let imageData = data else{
+                DispatchQueue.main.async {
+                    cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                }
+                ChatsViewController.showUniversalLoadingView(false)
+                return
+            }
+            
+            DispatchQueue.main.async {
+                guard let image = UIImage(data: imageData) else{
+                    cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+                    ChatsViewController.showUniversalLoadingView(false)
+                    return
+                }
+                ChatsViewController.showUniversalLoadingView(false)
+                cell.profileImage.image = image
+            }
+        }.resume()
+    }else{
+        ChatsViewController.showUniversalLoadingView(false)
+        DispatchQueue.main.async {
+            cell.profileImage.image = UIImage(systemName: "person.circle.fill")
+        }
+    }
+    // }
+    //        else{
+    //
+    //            cell.createdLBL.isHidden = true
+    //            cell.timeLBL.textAlignment = .center
+    //            let groupIndex = indexPath.row - users.count
+    //            cell.name.text = groups[groupIndex].value(forKey: "GroupName") as? String
+    //            cell.messageLBL.text = "Admin:\(groups[groupIndex].value(forKey: "Admin")!)"
+    //            let members = groups[groupIndex].value(forKey: "Users") as? [String]
+    //            cell.timeLBL.text = "\(members!.count) Members"
+    //        }
+    print(users[indexPath.row].id as Any)
+    return cell
+}
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         
         if isOpenChat{
@@ -289,31 +363,46 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
             self.navigationController?.pushViewController(vc, animated: true)
         }else{
             print("\(indexPath.row) Selected")
+           
             if isJoin == 1{
                 print("Join : \(indexPath.row)")
-                
-                let alert = UIAlertController(title: "Join \((users[indexPath.row].name)!)", message: "Are You Sure", preferredStyle: .alert)
-                alert.addAction(UIAlertAction(title: "Join", style: .default, handler: { (okClick) in
-                    print("Joined \((self.users[indexPath.row].name)!)")
-                    
-                   
-                    
-                    //After Joined All Data Reload
-                    tableView.deselectRow(at: indexPath, animated: true)
-                    let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CloudMessageVC") as! CloudMessageVC
-                    vc.receiverUser = self.users[indexPath.row]
-                    vc.currentUser = self.currentUser
-                    vc.type = self.users[indexPath.row].type!
-                    self.navigationController?.pushViewController(vc, animated: true)
-                    
-                }))
-                alert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (cancel) in
-                    print("JoinCancel")
-                    tableView.deselectRow(at: indexPath, animated: true)
-                }))
-                self.present(alert, animated: true, completion: nil)
-                
-                
+                tableView.deselectRow(at: indexPath, animated: true)
+                if users[indexPath.row].members?.contains((Auth.auth().currentUser?.email)!) == true{
+                    self.Errorpopup(message: "You Are Already In This Group")
+                }else{
+                    let alert = UIAlertController(title: "Join \((users[indexPath.row].name)!)", message: "Are You Sure", preferredStyle: .alert)
+                    alert.addAction(UIAlertAction(title: "Join", style: .default, handler: { (okClick) in
+                        print("Joined \((self.users[indexPath.row].name)!)")
+                        
+
+                        var updated = self.users[indexPath.row].members!
+                        updated.append((Auth.auth().currentUser?.email)!)
+                        let data: [String: Any] = [
+                            "Members":updated,
+                            "Updated":Timestamp()
+                        ]
+                        self.db.collection("Users").document(self.users[indexPath.row].id!).updateData(data) { (err) in
+                            guard err == nil else{
+                                print()
+                                return
+                            }
+                        }
+                        
+                        
+                        //After Joined All Data Reload
+                        let vc = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "CloudMessageVC") as! CloudMessageVC
+                        vc.receiverUser = self.users[indexPath.row]
+                        vc.currentUser = self.currentUser
+                        vc.type = self.users[indexPath.row].type!
+                        self.navigationController?.pushViewController(vc, animated: true)
+                        
+                    }))
+                    alert.addAction(UIAlertAction(title: "Cancel", style: .default, handler: { (cancel) in
+                        print("JoinCancel")
+                        tableView.deselectRow(at: indexPath, animated: true)
+                    }))
+                    self.present(alert, animated: true, completion: nil)
+                }
             }
 //            let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
 //            cell.profileImage.image = UIImage(named: "C")
@@ -324,6 +413,29 @@ extension ChatsViewController:UITableViewDelegate,UITableViewDataSource{
         print("\(indexPath.row) Deselected")
 //        let cell = tableView.dequeueReusableCell(withIdentifier: "ListCell") as! ListCell
 //        cell.profileImage.image = UIImage(named: "NC")
+    }
+    func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete{
+            print("\(indexPath.row) Deleted")
+            users.remove(at: indexPath.row)
+            self.ChatsTBL.reloadData()
+            
+            //MARK: - Delete from Firestore but not delete from Authentication
+//            db.collection("Users").getDocuments(completion: { (snap, err) in
+//
+//                for data in snap!.documents{
+//                    let usr = data.data() as NSDictionary
+//                    if self.users[indexPath.row].id == usr.value(forKey: "Id") as? String && self.users[indexPath.row].id != nil{
+//
+//
+//                        self.db.collection("Users").document(self.users[indexPath.row].id!).delete()
+//
+//                        print("\(self.users[indexPath.row].name!) Deleted")
+//                    }
+//
+//                }
+//            })
+        }
     }
 }
 

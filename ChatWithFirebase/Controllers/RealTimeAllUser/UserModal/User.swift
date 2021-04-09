@@ -22,6 +22,7 @@ class User: NSObject {
 }
 import FirebaseFirestore
 class UserList: NSObject {
+    var id:String?
     var name:String?
     var email :String?
     var profileImage:String?
@@ -29,6 +30,7 @@ class UserList: NSObject {
     var members:[String]?
     var type:String?
     init(Dict:[String:Any]) {
+        self.id = Dict["Id"] as? String
         self.name = Dict["UserName"] as? String
        self.email = Dict["EmailId"] as? String
         self.profileImage = Dict["ProfileImage"] as? String

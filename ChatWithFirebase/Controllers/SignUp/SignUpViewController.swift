@@ -79,14 +79,14 @@ class SignUpViewController: UIViewController {
                         let values = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"Updated":self.getCurrentDate(),"Type":"person"] as [String : Any]
                         self.AddIntoUserList(uid: (result?.user.uid)!, values: values as [String:Any])
                         
-                        
-                        let valuess = ["UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"Updated":Timestamp(),"Type":"person"] as [String : Any]
-                        Firestore.firestore().collection("Users").addDocument(data: valuess) { (err) in
+                        let id = UUID().uuidString
+                        let valuess = ["Id":id ,"UserName":userName,"EmailId":email.lowercased(),"ProfileImage":Imageurl.absoluteString,"Updated":Timestamp(),"Type":"person"] as [String : Any]
+                        Firestore.firestore().collection("Users").document(id).setData(valuess, completion: { (err) in
                             guard err == nil else{
-                                print(err?.localizedDescription)
+                                print(err!.localizedDescription)
                                 return
                             }
-                        }
+                        })
                     }
                 }
             }
