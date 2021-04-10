@@ -12,6 +12,7 @@ import FirebaseDatabase
 import FirebaseFirestore
 
 struct Messagee{
+    let receiverId:String?
     let sender:String?
     let receiver:[String]?
     let body:String?
@@ -66,7 +67,7 @@ class CloudMessageVC: UIViewController {
             }
         }
         
-        AddNewMessage(msg: Messagee(sender: Auth.auth().currentUser?.email, receiver: receivers, body: sender.text, messageTime: Timestamp(),type: type))
+        AddNewMessage(msg: Messagee(receiverId:receiverUser?.id, sender: Auth.auth().currentUser?.email, receiver: receivers, body: sender.text, messageTime: Timestamp(),type: type))
         receivers = []
         sender.text = nil
     }
@@ -258,6 +259,7 @@ extension CloudMessageVC{
         self.msgTBL.scrollToRow(at: index, at: .top, animated: true)
       
         let data: [String: Any] = [
+            "receiverId":msg.receiverId!,
             "sender": msg.sender!,
             "receiver": msg.receiver!,
             "body": msg.body!,
@@ -289,15 +291,16 @@ extension CloudMessageVC{
                     let receiverUser = receiver![0]
                     if receiver?.count == 1{
                         if (Auth.auth().currentUser?.email == data["sender"] as? String && (self.receiverUser?.email)! == receiverUser) || (Auth.auth().currentUser?.email == receiverUser && self.receiverUser?.email == data["sender"] as? String){
-                            let msg = Messagee(sender: data["sender"] as? String , receiver: [receiverUser], body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                            let msg = Messagee(receiverId:data["receiverId"] as? String, sender: data["sender"] as? String , receiver: [receiverUser], body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
                             self.messages.append(msg)
                         }
                     }
                 }else if self.type == "group"{
                     let members = data["receiver"] as? [String]
+                    let GroupId = data["receiverId"] as? String
                     
-                    if members?.contains((Auth.auth().currentUser?.email)!) == true && self.receiverUser?.members == members{
-                        let msg = Messagee(sender: data["sender"] as? String , receiver: data["receiver"] as? [String], body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
+                    if members?.contains((Auth.auth().currentUser?.email)!) == true && self.receiverUser?.members == members && self.receiverUser?.id == GroupId{
+                        let msg = Messagee(receiverId:GroupId, sender: data["sender"] as? String , receiver: members, body: data["body"] as? String, messageTime: data["time"] as? Timestamp,type: data["Type"] as? String)
                         self.messages.append(msg)
                     }
                 }

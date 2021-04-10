@@ -223,7 +223,7 @@ class ChatsViewController: UIViewController {
     
 }
 
-//MARK: - Get User List From RealTime Registered
+//MARK: - Get User List From FireStore Registered Users
 extension ChatsViewController{
     func GetList(){
         ChatsViewController.showUniversalLoadingView(true, loadingText: "Please Wait...")
